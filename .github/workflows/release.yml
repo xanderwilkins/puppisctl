@@ -1,0 +1,46 @@
+name: Build Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Build Windows EXE
+        run: |
+          pyinstaller --noconfirm --clean --onefile --windowed --name puppisctl main.py
+
+      - name: Package EXE
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\puppisctl.exe -DestinationPath puppisctl-windows-x64.zip
+
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            puppisctl-windows-x64.zip \
+            --title "${GITHUB_REF_NAME}" \
+            --notes "Windows executable build for puppisctl."
