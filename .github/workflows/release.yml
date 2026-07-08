@@ -33,14 +33,20 @@ jobs:
       - name: Package EXE
         shell: pwsh
         run: |
-          Compress-Archive -Path dist\puppisctl.exe -DestinationPath puppisctl-windows-x64.zip
+          Compress-Archive -Path dist\puppisctl.exe -DestinationPath "puppisctl-${{ github.ref_name }}-windows-x64.zip"
 
-      - name: Create GitHub Release
+      - name: Create or Update GitHub Release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            puppisctl-windows-x64.zip \
-            --title "${GITHUB_REF_NAME}" \
-            --notes "Windows executable build for puppisctl."
+          ASSET="puppisctl-${GITHUB_REF_NAME}-windows-x64.zip"
+
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "$ASSET" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              "$ASSET" \
+              --title "puppisctl ${GITHUB_REF_NAME}" \
+              --notes "Windows executable build for puppisctl."
+          fi
