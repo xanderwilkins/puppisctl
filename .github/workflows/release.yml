@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Windows EXE
         run: |
-          pyinstaller --noconfirm --clean --onefile --windowed --name puppisctl main.py
+          pyinstaller --noconfirm --clean --onefile --windowed --name puppisctl puppisctl.py
 
       - name: Package EXE
         shell: pwsh
