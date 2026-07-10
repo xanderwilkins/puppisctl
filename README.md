@@ -24,4 +24,4 @@ No third-party Python packages are required.
 ## Usage
 
 ```bash
-python main.py
+python puppisctl.py
